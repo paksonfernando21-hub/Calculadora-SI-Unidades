@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema Internacional de Medidas — Calculadora</title>
+  <style>
+   :root {
+  /* Paleta clara con fondo crema */
+  --primary: #4a90e2;         /* azul suave para botones y detalles */
+  --secondary: #f5a623;       /* naranja dorado para acentos */
+  --tertiary: #e94f64;        /* rojo suave para alertas */
+  
+  --bg: #fffdf5;              /* fondo general crema */
+  --panel: #fff8e1;           /* paneles un poco más oscuros */
+  --card: #fff3cc;            /* tarjetas con más contraste */
+  
+  --text: #1e1e1e;            /* texto principal oscuro */
+  --muted: #5c5c5c;           /* texto atenuado */
+  --border: #e0d5c3;          /* bordes suaves */
+  --ring: rgba(74, 144, 226, 0.3); /* halo de enfoque */
+  
+  --radius: 18px;
+}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(900px 500px at 15% -5%, rgba(37,99,235,.25), transparent 60%),
+        radial-gradient(900px 500px at 85% -15%, rgba(245,158,11,.22), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1120px; margin:28px auto; padding:0 16px}
+
+    .hero{
+      display:flex; 
+      flex-direction: column; 
+      gap:20px; 
+    }
+    @media (max-width:900px){ .hero{grid-template-columns:1fr} }
+
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.0)); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,.35)}
+
+    .head{padding:18px}
+    .brand{display:flex; align-items:center; gap:12px; font-weight:900; font-size:clamp(22px,3.5vw,30px)}
+    .badge{margin-left:auto; font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(37,99,235,.18); border:1px solid rgba(37,99,235,.35); color:#cfe2ff}
+    .sub{margin:10px 0 0; color:var(--muted); line-height:1.55}
+
+    .chips{display:flex; flex-wrap:wrap; gap:10px; padding:0 18px 14px}
+    .chip{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; border:1px solid var(--border); background:#0c1a39; font-size:13px}
+    .dot{width:10px; height:10px; border-radius:999px; background:linear-gradient(90deg, var(--primary), var(--secondary)); box-shadow:0 0 0 2px rgba(37,99,235,.18)}
+
+    .toolbar{
+      display:flex; 
+      flex-wrap: wrap;
+      gap:12px; 
+      padding:12px;
+      justify-content: center; /* 🔹 centra los botones */
+    }
+    .manual-toolbar-grid {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .grid-toolbar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 botones por fila */
+      gap: 16px;
+      width: 100%;
+      max-width: 1000px; /* ajusta esto según el tamaño de tu contenedor */
+      padding: 0 16px;
+    }
+    .category{
+      height: 70px;
+      font-size: 22px;
+      font-weight: 600;
+      border-radius: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      width: 100%; /* 🔹 para que cada botón ocupe su celda entera */
+      padding:16px 18px; 
+      text-align: center;
+    }
+    .category:hover{
+    transform:scale(1.02); 
+    background:#3c78c3;
+    }
+    .category.active{
+      outline:3px solid var(--ring); 
+      box-shadow:0 0 0 4px var(--ring); 
+      background:var(--secondary);
+      font-weight: 700;
+    }
+    .category .icon{
+      font-size: 32px;   /* 🔹 Emoji más grande */
+      line-height: 1;
+    }
+
+    .gallery{display:grid; grid-template-columns:repeat(8, minmax(44px,1fr)); gap:8px; padding:4px; border-top:1px solid var(--border)}
+    .thumb{aspect-ratio:1/1; border-radius:12px; display:grid; place-items:center; background:#0c1b3d; border:1px solid var(--border); font-size:22px}
+    .help{
+      padding: 16px;
+      border-top: 2px dashed var(--border);
+      font-size: 18px;
+      font-weight: 500;
+      background: var(--card); /* mismo fondo de tarjetas */
+      color: #444; /* texto más oscuro y legible */
+      line-height: 1.6;
+      text-align: center;
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .help b {
+      font-weight: 700;
+    }
+    .help.masa       { color: #1e88e5; }  /* Azul */
+    .help.volumen    { color: #43a047; }  /* Verde */
+    .help.distancia  { color: #6d4c41; }  /* Marrón */
+    .help.densidad   { color: #00838f; }  /* Cian oscuro */
+    .help.presion    { color: #8e24aa; }  /* Púrpura */
+    .help.tiempo     { color: #f4511e; }  /* Naranja fuerte */
+    .help.fuerza     { color: #c62828; }  /* Rojo fuerte */
+    .help.energia    { color: #f9a825; }  /* Amarillo oscuro */
+
+    .converter{display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:10px}
+    @media (max-width:900px){ .converter{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card); 
+      border:1px solid var(--border); 
+      border-radius:16px; 
+      padding:16px}
+    .card h3{
+      font-size: 24px;             /* 🔹 Tamaño más grande */
+      color: var(--primary);       /* 🔹 Color llamativo */
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    label{
+     font-size: 20px;             /* 🔹 Más grande */ 
+     color: var(--secondary);     /* 🔹 Color cálido */
+     font-weight: 600;
+    }
+    input, select{
+      width:100%; 
+      padding: 12px; 
+      margin-top:6px; 
+      border-radius:12px; 
+      border:1px solid var(--border); 
+      background:#ffffff; 
+      color:#1e1e1e; 
+      outline:none; 
+      transition:.15s ease; 
+      font-size:15px
+    }
+    input:focus, select:focus{border-color:var(--primary); box-shadow:0 0 0 3px var(--ring)}
+
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .actions{display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap}
+    .btn{
+      padding: 10px 14px;              /* 🔹 Botones más grandes */
+      font-size: 16px;                 /* 🔹 Texto más grande */
+      border-radius: 16px;
+      border: 2px solid #18407a;
+      background: #0a1a36;
+      color: #eaf2ff;
+      cursor: pointer;
+      font-weight: 700;                /* 🔹 Texto más marcado */
+      transition: 0.2s ease;
+    }
+    .btn:hover{background:#3c78c3}
+    .btn.primary{
+      background:linear-gradient(90deg, var(--primary), var(--secondary)); 
+      color:#fff;
+    }
+
+    .result{
+        font-size: clamp(44px, 6vw, 56px); /* 🔹 Agranda más el texto */
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        background: linear-gradient(90deg, var(--secondary), var(--primary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: #ffa113;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    .result-sub{
+      color:var(--muted);
+    }
+
+    /* Accesibilidad */
+    .sr{position:absolute; left:-9999px}
+    .head {
+  padding: 18px;
+  text-align: justify; /* 🔹 justifica el contenido */
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 🔹 Centra horizontalmente */
+  gap: 12px;
+  font-weight: 900;
+  font-size: clamp(40px, 5vw, 52px); /* 🔹 Agranda el título responsivamente */
+}
+
+.brand span:first-child {
+  font-size: 48px; /* 🔹 Agranda el emoji */
+}
+
+.sub {
+  margin: 10px auto 0;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 20px; /* 🔹 Agranda subtítulo */
+  max-width: 900px;
+  text-align: justify; /* 🔹 justifica subtítulo */
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="hero">
+      <div class="panel">
+        <div class="head">
+          <div class="brand">
+            <span style="font-size:40px">📐</span>
+            <span>Sistema Internacional de Medidas</span>
+          </div>
+          <p class="sub">Selecciona una <strong>magnitud</strong>, escribe la cantidad a convertir y no olvides desde que unidad hasta cual deseas que sea convertida.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar manual-toolbar-grid">
+  <div class="grid-toolbar">
+    <button class="category" onclick="setCategory('Masa')">
+  <span class="icon">⚖️</span> Masa
+</button>
+<button class="category" onclick="setCategory('Volumen')">
+  <span class="icon">🧪</span> Volumen
+</button>
+<button class="category" onclick="setCategory('Distancia')">
+  <span class="icon">📏</span> Distancia
+</button>
+<button class="category" onclick="setCategory('Densidad')">
+  <span class="icon">🧊</span> Densidad
+</button>
+<button class="category" onclick="setCategory('Presión')">
+  <span class="icon">🩺</span> Presión
+</button>
+<button class="category" onclick="setCategory('Tiempo')">
+  <span class="icon">⏱️</span> Tiempo
+</button>
+<button class="category" onclick="setCategory('Fuerza')">
+  <span class="icon">💪</span> Fuerza
+</button>
+<button class="category" onclick="setCategory('Energía')">
+  <span class="icon">⚡</span> Energía
+</button>
+  </div>
+</div>
+
+        <div class="gallery" id="gallery"></div>
+        <div class="help" id="help"></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:18px">
+      <div class="converter" id="converter"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Datos ---
+    const CATEGORIES = {
+      "Masa": {
+        base: "kg", icon:"⚖️", tip:"Base: kilogramo (kg). 1 t = 1000 kg; 1 g = 0,001 kg.",
+        units:{"t":{name:"Tonelada",factor:1000},"kg":{name:"Kilogramo",factor:1},"g":{name:"Gramo",factor:1e-3},"mg":{name:"Miligramo",factor:1e-6},"µg":{name:"Microgramo",factor:1e-9}},
+        images:["⚖️","🏋️","🍞","🥔","📦","🥛","🧱","🧪"]
+      },
+      "Volumen": {
+        base: "L", icon:"🧪", tip:"Galón (US): 1 gal = 3,785411784 L. 1 m³ = 1000 L.",
+        units:{"gal":{name:"Galón (US)",factor:3.785411784},"m³":{name:"Metro cúbico",factor:1000},"L":{name:"Litro",factor:1},"mL":{name:"Mililitro",factor:1e-3},"µL":{name:"Microlitro",factor:1e-6}},
+        images:["🧪","🥤","🪣","🛢️","🍲","🚿","💧","🧴"]
+      },
+      "Distancia": {
+        base:"m", icon:"📏", tip:"1 yarda = 0,9144 m; 1 pulgada = 0,0254 m.",
+        units:{"yd":{name:"Yarda",factor:0.9144},"in":{name:"Pulgada",factor:0.0254},"m":{name:"Metro",factor:1},"cm":{name:"Centímetro",factor:0.01},"km":{name:"Kilómetro",factor:1000},"mm":{name:"Milímetro",factor:0.001}},
+        images:["📏","📐","🧵","📦","🪚","🚧","🛣️","🧱"]
+      },
+      "Densidad": {
+        base:"kg/m³", icon:"🧊", tip:"Agua ≈ 1 g/mL = 1000 kg/m³. 1 g/L = 1 kg/m³.",
+        units:{"kg/m³":{name:"Kilogramo por m³",factor:1},"g/mL":{name:"Gramo por mL",factor:1000},"kg/L":{name:"Kilogramo por L",factor:1000},"g/L":{name:"Gramo por L",factor:1}},
+        images:["🧊","🥛","🧴","🛢️","🧪","🧱","🌊","🧂"]
+      },
+      "Presión": {
+        base:"Pa", icon:"🩺", tip:"1 atm = 101325 Pa; 1 mmHg ≈ 133,322 Pa; 1 psi ≈ 6894,76 Pa.",
+        units:{"mmHg":{name:"milímetro de Hg",factor:133.322387415},"atm":{name:"Atmósfera",factor:101325},"Pa":{name:"Pascal",factor:1},"psi":{name:"Libra/pulg²",factor:6894.757293},"Torr":{name:"Torr",factor:133.322368}},
+        images:["🩺","🌡️","🏥","🛠️","⛽","🧯","🌀","💨"]
+      },
+      "Tiempo": {
+        base:"s", icon:"⏱️", tip:"1 min = 60 s; 1 h = 3600 s.",
+        units:{"s":{name:"Segundo",factor:1},"min":{name:"Minuto",factor:60},"h":{name:"Hora",factor:3600}},
+        images:["⏱️","🕒","⌚","⏰","📆","📊","🏃","🚴"]
+      },
+      "Fuerza": {
+        base:"N", icon:"💪", tip:"1 kN = 1000 N; 1 dyne = 1e-5 N; 1 kgf = 9,80665 N.",
+        units:{"N":{name:"Newton",factor:1},"kN":{name:"Kilonewton",factor:1000},"µN":{name:"Micronewton",factor:1e-6},"dyn":{name:"Dina (dyne)",factor:1e-5},"kgf":{name:"Kilogramo-fuerza",factor:9.80665}},
+        images:["💪","🏗️","🔩","🧲","⚙️","🚗","🧱","📦"]
+      },
+      "Energía": {
+        base:"J", icon:"⚡", tip:"1 kJ = 1000 J; 1 kcal = 4184 J.",
+        units:{"kJ":{name:"Kilojulio",factor:1000},"kcal":{name:"Kilocaloría",factor:4184},"J":{name:"Julio (base)",factor:1}},
+        images:["⚡","🔥","🍎","🏃","🔋","💡","🥤","🌞"]
+      }
+    };
+
+    const state = { category:Object.keys(CATEGORIES)[0], from:null, to:null, value:"1", decimals:6 };
+
+    const el = (t,a={},c=[])=>{ const n=document.createElement(t); for(const[k,v] of Object.entries(a)){ if(k==="class")n.className=v; else if(k==="html")n.innerHTML=v; else n.setAttribute(k,v);} (Array.isArray(c)?c:[c]).forEach(x=>{ if(x==null)return; if(typeof x==="string") n.appendChild(document.createTextNode(x)); else n.appendChild(x);}); return n; };
+    const fnum = (n) => {
+  if (!isFinite(n)) return "";
+
+  const abs = Math.abs(n);
+
+  if (abs !== 0 && (abs < 0.001 || abs >= 1e6)) {
+    const exp = Math.floor(Math.log10(abs));
+    const base = n / Math.pow(10, exp);
+
+    const formattedBase = base.toLocaleString('es-ES', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    });
+
+    return `${formattedBase.replace('.', ',')}×10^${exp}`;
+  }
+
+  return n.toLocaleString('es-ES', {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  });
+};
+    const convert = (cat,val,from,to)=>{ const cfg=CATEGORIES[cat]; const F=cfg.units[from]?.factor||1; const T=cfg.units[to]?.factor||1; return (val*F)/T; };
+
+    function renderToolbar(){
+      const bar = document.getElementById('toolbar'); bar.innerHTML='';
+      Object.entries(CATEGORIES).forEach(([k,cfg])=>{
+        const btn = el('button',{class:`category ${state.category===k?'active':''}`,title:k},[el('span',{class:'icon'},cfg.icon), el('span',{},k)]);
+        btn.onclick=()=>{state.category=k; state.from=null; state.to=null; renderAll();}; bar.appendChild(btn);
+      });
+    }
+    function renderGallery(){ const g=document.getElementById('gallery'); g.innerHTML=''; CATEGORIES[state.category].images.forEach(e=>g.appendChild(el('div',{class:'thumb'},e))); }
+    function renderHelp(){ 
+      const h = document.getElementById('help');
+      const cfg = CATEGORIES[state.category];
+
+  // 🔸 Limpiar clases anteriores (solo deja 'help')
+   h.className = 'help';
+
+  // 🔸 Normaliza el nombre de categoría para usarlo como clase
+  const cls = state.category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  h.classList.add(cls);
+
+  // 🔸 Inserta el contenido con emoji + nombre en negrita + tip
+  h.innerHTML = `<span class="icon">${cfg.icon}</span> <b>${state.category}</b> · ${cfg.tip}`;
+    }
+
+    function unitOptions(cfg){ return Object.entries(cfg.units).map(([k,u])=>`<option value="${k}">${u.name} (${k})</option>`).join(''); }
+    function defaults(cfg){ const keys=Object.keys(cfg.units); const bi=Math.max(0,keys.indexOf(cfg.base||keys[0])); return [keys[bi], keys[Math.min(keys.length-1,bi+1)]]; }
+
+    function renderConverter(){
+      const root=document.getElementById('converter'); 
+      root.innerHTML=''; const cfg=CATEGORIES[state.category];
+      if(!state.from||!cfg.units[state.from]||!state.to||!cfg.units[state.to]){ [state.from,state.to]=defaults(cfg); 
+
+      }
+      const val=parseFloat(state.value||'0')||0; 
+      const res=convert(state.category,val,state.from,state.to);
+
+      const left=el('div',{class:'card'},[
+        el('h3',{},`${cfg.icon} Conversión`),
+        el('div',{class:'row'},[
+        el('div',{},[el('label',{},'Cantidad'), el('input',{type:'number', step:'any', value:state.value, placeholder:'Escribe un número…'})])
+      ]),
+      el('div',{class:'row'},[
+      el('div',{},[el('label',{},'Desde'), el('select',{html:unitOptions(cfg)})]),
+      el('div',{},[el('label',{},'Hacia'), el('select',{html:unitOptions(cfg)})])
+    ]),
+    el('div',{class:'actions'},[
+    el('button',{class:'btn',title:'Intercambiar'},'↔️ Intercambiar'),
+    el('button',{class:'btn',title:'Limpiar'},'🧹 Limpiar'),
+    el('div',{style:'flex:1'}),
+  ])
+]);
+
+      const right=el('div',{class:'card'},[
+        el('h3',{},'Resultado'),
+        el('div',{style:'margin-top:12px'},[
+        el('div',{class:'result',id:'resultText'}, fnum(res)),
+        el('div',{class:'result-sub',id:'resultSub'},`${val} ${state.from} = ${fnum(res)} ${state.to}`)
+      ]),
+      el('div',{class:'actions'},[
+      el('button',{class:'btn primary'},'📋 Copiar resultado'),
+      el('button',{class:'btn'},'ℹ️ Tabla rápida')
+    ])
+  ]);
+
+      root.append(left,right);
+
+      const inpVal = left.querySelector('input[type="number"]');
+      const selFrom = left.querySelectorAll('select')[0];
+      const selTo = left.querySelectorAll('select')[1];
+      
+      const swapBtn = left.querySelector('button[title="Intercambiar"]');
+      const clearBtn = left.querySelector('button[title="Limpiar"]');
+      const copyBtn = right.querySelector('button.primary');
+      const tableBtn = right.querySelectorAll('button')[1];
+
+      selFrom.value = state.from; selTo.value = state.to;
+
+      function update(){
+  state.value = inpVal.value;
+  state.from = selFrom.value;
+  state.to = selTo.value;
+
+  const v = parseFloat(state.value || '0') || 0;
+  const r = convert(state.category, v, state.from, state.to);
+
+  const formatted = fnum(r);
+  const inputFormatted = fnum(v);
+
+  document.getElementById('resultText').textContent = formatted;
+  document.getElementById('resultSub').textContent = `${inputFormatted} ${state.from} = ${formatted} ${state.to}`;
+}
+      inpVal.oninput = update; selFrom.onchange = update; selTo.onchange = update;
+      //decInput.oninput = ()=>{ const n=Math.max(0,Math.min(12,parseInt(decInput.value||'0'))); state.decimals=n; update(); };
+      swapBtn.onclick = ()=>{ [state.from,state.to] = [state.to,state.from]; renderConverter(); };
+      clearBtn.onclick = ()=>{ state.value = ""; renderConverter(); };
+      copyBtn.onclick = ()=>{ const txt=document.getElementById('resultSub').textContent; navigator.clipboard.writeText(txt).then(()=>{ copyBtn.textContent='✅ Copiado'; setTimeout(()=>copyBtn.textContent='📋 Copiar resultado',900); }); };
+      tableBtn.onclick = ()=> showQuickTable();
+    }
+
+   function showQuickTable(){
+  const cfg = CATEGORIES[state.category];
+  const keys = Object.keys(cfg.units);
+  const samples = [1, 10, 100];
+
+  const rows = samples.map(s => {
+    const cells = keys.map(k =>
+      `<td style="padding:8px 10px; border-bottom:1px solid ${getComputedStyle(document.documentElement).getPropertyValue('--border')}">${fnum(convert(state.category, s, keys[0], k))}</td>`
+    ).join('');
+    return `<tr><td style="font-weight:800; color:#cfe2ff; padding:8px 10px; border-bottom:1px solid var(--border)">${fnum(s)} ${keys[0]}</td>${cells}</tr>`;
+  }).join('');
+
+  const head = keys.map(k => `<th style="text-align:left; padding:8px 10px; color:#a7bee9">${k}</th>`).join('');
+
+  const html = `
+    <div style="position:fixed; inset:0; background:rgba(0,0,0,.6); display:grid; place-items:center; z-index:50">
+      <div style="width:min(920px,92vw); background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.55)">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border)">
+          <div style="font-weight:900">Tabla rápida — ${state.category}</div>
+          <button id="closeModal" class="btn">Cerrar ✖</button>
+        </div>
+        <div style="padding:12px 16px; overflow:auto">
+          <div style="font-size:12px; color:#a7bee9; margin-bottom:8px">Columna 1 fija en <b>${keys[0]}</b> → Conversión a las demás unidades</div>
+          <table style="width:100%; border-collapse:collapse">
+            <thead><tr><th style="padding:8px 10px"></th>${head}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  document.body.appendChild(wrap);
+  wrap.querySelector('#closeModal').onclick = () => wrap.remove();
+}
+    function setCategory(name) {
+  state.category = name;
+  state.from = null;
+  state.to = null;
+  renderHelp();
+  renderConverter();
+
+  // 🔹 Marcar botón activo visualmente
+  document.querySelectorAll('.category').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.textContent.includes(name)) {
+      btn.classList.add('active');
+    }
+  });
+}
+    function renderAll(){ 
+      // renderToolbar(); // 
+      //renderGallery(); //
+      renderHelp(); 
+      renderConverter(); 
+    }
+    renderAll();
+    setCategory('Masa');
+  </script>
+</body>
+</html>
